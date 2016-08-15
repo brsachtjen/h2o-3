@@ -81,7 +81,7 @@ public class AppendableVec extends Vec {
 
   public int compute_rowLayout() {
     int nchunk = _tmp_espc.length;
-    while( nchunk > 1 && _tmp_espc[nchunk-1] == 0 )
+    while( nchunk >= 1 && _tmp_espc[nchunk-1] == 0 )
       nchunk--;
     // Compute elems-per-chunk.
     // Roll-up elem counts, so espc[i] is the starting element# of chunk i.
@@ -102,7 +102,7 @@ public class AppendableVec extends Vec {
     // Compute #chunks
     int nchunk = _tmp_espc.length;
     DKV.remove(chunkKey(nchunk),fs); // remove potential trailing key
-    while( nchunk > 1 && _tmp_espc[nchunk-1] == 0 ) {
+    while( nchunk >= 1 && _tmp_espc[nchunk-1] == 0 ) {
       nchunk--;
       DKV.remove(chunkKey(nchunk),fs); // remove potential trailing key
     }
