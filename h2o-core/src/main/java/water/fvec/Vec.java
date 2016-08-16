@@ -362,7 +362,7 @@ public class Vec extends Keyed<Vec> {
     for( int i=1; i<nchunks; i++ )
       espc[i] = redistribute ? espc[i-1]+len/nchunks : ((long)i)<<log_rows_per_chunk;
     espc[nchunks] = len;
-    VectorGroup vg = VectorGroup.VG_LEN1;
+    VectorGroup vg = nchunks==1 ? VectorGroup.VG_LEN1 : new VectorGroup();
     return makeCon(x,vg,ESPC.rowLayout(vg._key,espc));
   }
 
@@ -1366,8 +1366,19 @@ public class Vec extends Keyed<Vec> {
       throw H2O.fail("Vec "+v._key+" asked for layout "+r+", but only "+remote._espcs.length+" layouts defined");
     }
 
+    static int espc_len( Vec v ) { 
+      final Key kespc = espcKey(v._key);
+      ESPC local = getLocal(kespc);
+      if( local ._espcs.length > 0 ) return local ._espcs[0].length;
+      final ESPC remote = getRemote( local, kespc);
+      if( remote._espcs.length > 0 ) return remote._espcs[0].length;
+      return -1;                // No layouts; length not decided yet
+    }
+
     // Check for a prior matching ESPC
     private static int find_espc( long[] espc, long[][] espcs ) {
+      assert espcs.length==0 || espcs[0].length==espc.length 
+        : "Mismatched chunk counts; looking for a layout with "+(espc.length-1)+" chunks, in a VectorGroup using "+(espcs[0].length-1)+" chunks.";
       // Check for a local pointer-hit first:
       for( int i=0; i<espcs.length; i++ ) if( espc==espcs[i] ) return i;
       // Check for a local deep equals next:
