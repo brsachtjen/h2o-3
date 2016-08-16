@@ -85,15 +85,9 @@ public class AppendableVec extends Vec {
     return i+1;
   }
   public int compute_rowLayout() {
-<<<<<<< HEAD
     // Compute #chunks; use existing #chunks, if any, else use non-zero row counts in _tmp_espc
     int len = ESPC.espc_len(this);
     int nchunk = len == -1 ? findLastNZ(_tmp_espc) : len-1;
-=======
-    int nchunk = _tmp_espc.length;
-    while( nchunk >= 1 && _tmp_espc[nchunk-1] == 0 )
-      nchunk--;
->>>>>>> origin/cliffc-zerochunk
     // Compute elems-per-chunk.
     // Roll-up elem counts, so espc[i] is the starting element# of chunk i.
     long espc[] = new long[nchunk+1]; // Shorter array
@@ -112,21 +106,11 @@ public class AppendableVec extends Vec {
   // "Close" out a NEW vector - rewrite it to a plain Vec that supports random
   // reads, plus computes rows-per-chunk, min/max/mean, etc.
   public Vec close(int rowLayout, Futures fs) {
-<<<<<<< HEAD
     // Compute #chunks; use existing #chunks, if any, else use non-zero row counts in _tmp_espc
     int len = ESPC.espc_len(this);
     int nchunk = len==-1 ? findLastNZ(_tmp_espc) : len-1;
     for( int i=nchunk; i<_tmp_espc.length; i++ )
       DKV.remove(chunkKey(i),fs); // remove potential trailing key
-=======
-    // Compute #chunks
-    int nchunk = _tmp_espc.length;
-    DKV.remove(chunkKey(nchunk),fs); // remove potential trailing key
-    while( nchunk >= 1 && _tmp_espc[nchunk-1] == 0 ) {
-      nchunk--;
-      DKV.remove(chunkKey(nchunk),fs); // remove potential trailing key
-    }
->>>>>>> origin/cliffc-zerochunk
 
     // Replacement plain Vec for AppendableVec.
     Vec vec = new Vec(_key, rowLayout, domain(), _type);
