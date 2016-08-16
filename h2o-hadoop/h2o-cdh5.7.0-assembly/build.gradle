@@ -4,3 +4,10 @@ ext {
 }
 
 apply from: '../assemblyjar.gradle'
+
+dependencies {
+  compile(project(":h2o-orc-parser")) {
+    // We do not get any dependencies but directly rely on provided environment
+    transitive = false
+  }
+}

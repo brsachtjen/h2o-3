@@ -5,25 +5,30 @@ description = "H2O Orc Parser"
 
 dependencies {
   compile project(":h2o-core")
-  compile project(":h2o-persist-hdfs")
-//          {     transitive = false    // FIX ME:  Will create problems for Hadoop.
-//          }
-
-  // Orc support
-//  compile "org.apache.hadoop:hadoop-client:2.6.0.2.2.0.0-2041"
-  compile("org.apache.hive:hive-exec:0.14.0.2.2.0.0-2041") {
-    exclude module: 'pentaho-aggdesigner-algorithm'
-    exclude module: 'calcite-core'
-    exclude module: 'calcite-avatica'
+  // Only PersistHDFS API
+  compile(project(":h2o-persist-hdfs")) {
+    transitive = false
   }
+
+  // What is connection between hive-exec version and hadoop-version and orc version?
+  // ??? Which version we should put here ???
+  compile("org.apache.hive:hive-exec:0.14.0.2.2.0.0-2041") {
+    transitive = false
+  }
+
+  // This dependency will fetch Hadoop version to 2.6.0 (if included in assembly)
+  // ??? Which version of orc we should put here? Is it Hadoop version dependent?
   compile("org.apache.orc:orc-core:1.1.1") {
     exclude module: 'protobuf-java'
     exclude module: 'crunch-core'
     exclude module: 'crunch-hive'
+    transitive = true
   }
 
   testCompile "junit:junit:${junitVersion}"
   testCompile project(path: ":h2o-core", configuration: "testArchives")
+  // We need correct version of MapRe Hadoop to run JUnits
+  testCompile("org.apache.hadoop:hadoop-client:$orcDefaultHadoopClientVersion")
 }
 
 apply from: "${rootDir}/gradle/dataCheck.gradle"
